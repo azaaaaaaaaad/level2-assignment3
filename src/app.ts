@@ -1,5 +1,6 @@
 import express, { Application, Request, Response } from 'express'
 import cors from 'cors'
+import authRoute from './modules/auth/auth.route'
 const app: Application = express()
 
 // Middleware to parse JSON
@@ -7,6 +8,7 @@ app.use(express.json())
 app.use(cors())
 
 // Application routes
+app.use('/api/auth', authRoute)
 // app.use('/api/products', StationaryRoutes)
 // app.use('/api/orders', OrderRoutes)
 
