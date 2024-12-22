@@ -1,6 +1,8 @@
 import express, { Application, Request, Response } from 'express'
 import cors from 'cors'
 import authRoute from './modules/auth/auth.route'
+import globalErrorHandler from './middlewares/globalErrorhandler'
+import notFound from './middlewares/notFound'
 const app: Application = express()
 
 // Middleware to parse JSON
@@ -18,5 +20,9 @@ const getAController = (req: Request, res: Response) => {
   res.send(a)
 }
 app.get('/', getAController)
+
+app.use(globalErrorHandler);
+
+
 
 export default app
