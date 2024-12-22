@@ -1,38 +1,52 @@
-import { NextFunction, Request, Response } from 'express';
-import catchAsync from '../utils/catchAsync';
-import AppError from '../errors/AppError';
-import httpStatus from 'http-status';
-import jwt, { decode, JwtPayload } from 'jsonwebtoken';
-import config from '../config';
-import { TUserRole } from '../modules/user/user.interface';
 
+
+
+import { NextFunction, Request, Response } from 'express';
+import jwt, { JwtPayload } from 'jsonwebtoken';
+import { TUserRole } from '../modules/user/user.interface';
+import catchAsync from '../app/utils/catchAsync';
+import { User } from '../modules/user/user.model';
+import config from '../app/config';
 const auth = (...requiredRoles: TUserRole[]) => {
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const token = req.headers.authorization;
-    console.log(token);
-    // if the token is sent from the client
+    // checking if the token is missing
     if (!token) {
-      throw new AppError(httpStatus.UNAUTHORIZED, 'U are not authorized');
+      throw new Error( 'You are not authorized!');
     }
-    // check if the token is valid
-    // invalid token
-    jwt.verify(
+
+    // checking if the given token is valid
+    const decoded = jwt.verify(
       token,
       config.jwt_access_secret as string,
-      function (err, decoded) {
-        if (err) {
-          throw new AppError(httpStatus.UNAUTHORIZED, 'U are not authorized');
-        }
+    ) as JwtPayload;
 
-        const role = (decode as JwtPayload)?.role
-        if (requiredRoles && !requiredRoles.includes(role)) {
-          throw new AppError(httpStatus.UNAUTHORIZED, 'U are not authorized');
-        }
-        //decoded
-        req.user = decoded as JwtPayload;
-        next();
-      },
-    );
+    console.log({decoded})
+
+    const { role, email} = decoded;
+
+    // checking if the user is exist
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    throw new Error('This user is not found !')
+  }
+
+  // checking if the user is inactive
+  const userStatus = user?.isBlocked
+
+  if (userStatus === true) {
+    throw new Error('This user is blocked ! !')
+  }
+
+    if (requiredRoles && !requiredRoles.includes(role)) {
+      throw new Error(
+        'You are not authorized',
+      );
+    }
+
+    req.user = decoded as JwtPayload;
+    next();
   });
 };
 

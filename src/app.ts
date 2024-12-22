@@ -2,7 +2,8 @@ import express, { Application, Request, Response } from 'express'
 import cors from 'cors'
 import authRoute from './modules/auth/auth.route'
 import globalErrorHandler from './middlewares/globalErrorhandler'
-import notFound from './middlewares/notFound'
+import userRouter from './modules/user/user.route'
+
 const app: Application = express()
 
 // Middleware to parse JSON
@@ -11,6 +12,7 @@ app.use(cors())
 
 // Application routes
 app.use('/api/auth', authRoute)
+app.use('/api/user', userRouter)
 // app.use('/api/products', StationaryRoutes)
 // app.use('/api/orders', OrderRoutes)
 

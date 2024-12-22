@@ -6,6 +6,8 @@
 // createdAt: Date – The timestamp when the user was created.
 // updatedAt: Date – The timestamp of the last update to the user.
 
+import { USER_ROLE } from "./user.constant"
+
 export interface TUser {
   name: string
   email: string
@@ -15,3 +17,5 @@ export interface TUser {
   createdAt: Date
   updatedAt: Date
 }
+
+export type TUserRole = keyof typeof USER_ROLE;
